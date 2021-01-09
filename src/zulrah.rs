@@ -1,13 +1,6 @@
 use std::collections::VecDeque;
 use std::fmt;
 
-#[derive(Debug)]
-pub enum PhaseState {
-    Start(u8),
-    Ongoing(u8),
-    End,
-}
-
 #[derive(Debug, Clone, Copy)]
 pub enum Form {
     Serpentine, //green
@@ -29,8 +22,7 @@ enum Location {
 struct Phase {
     form: Form,
     loc: Location,
-    time: u16,  //ticks
-    delay: u16, //ticks
+    time: u16, //ticks
     damage: Vec<u16>,
 }
 
@@ -49,81 +41,80 @@ impl fmt::Display for Phase {
     }
 }
 
-//one full rotation - lasts until Zulrah resets at middle
+#[derive(Debug, Clone, Copy)]
+pub enum Rot {
+    Southgreen,
+    Westgreen,
+    Eastgreen,
+    Eastblue,
+}
+
+impl fmt::Display for Rot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Rot::Southgreen => write!(f, "Rotation 1: South Green"),
+            Rot::Westgreen => write!(f, "Rotation 2: West Green"),
+            Rot::Eastgreen => write!(f, "Rotation 3: East Green"),
+            Rot::Eastblue => write!(f, "Rotation 4: East Blue"),
+        }
+    }
+}
+
+//all of the phases for one Zulrah kill
+//start with one rotation and append additional as needed
 #[derive(Debug)]
 struct Rotation {
-    name: String,
+    name: Rot,
     phases: VecDeque<Phase>,
-    //time: u8,
-    //state: PhaseState,
-    //form: Form,
+    delay: u16,
 }
 
 impl Rotation {
     //TODO: should randomly pick one of the four rotations
-    fn new() -> Rotation {
+    fn new(rot: Rot) -> Rotation {
         let mut phases = VecDeque::new();
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 20,
-            delay: 6,
             damage: Vec::new(),
         });
 
-        let name = Rotation::add_phases(&mut phases);
-        Rotation { name, phases }
+        Rotation::add_phases(&rot, &mut phases);
+        Rotation {
+            name: rot,
+            phases,
+            delay: 7,
+        }
     }
 
-    fn add_phases(phases: &mut VecDeque<Phase>) -> String {
-        Rotation::south_green(phases);
-        "Rotation 1: South Green".to_string()
+    fn add_phases(rot: &Rot, phases: &mut VecDeque<Phase>) {
+        match *rot {
+            Rot::Southgreen => Rotation::south_green(phases),
+            Rot::Westgreen => Rotation::west_green(phases),
+            Rot::Eastgreen => Rotation::east_green(phases),
+            Rot::Eastblue => Rotation::east_blue(phases),
+        }
     }
 
+    //TODO: should randomly pick the follow on phase
     fn next_phase(&mut self) -> Phase {
         let phase = self.phases.pop_front();
         match phase {
             Some(phase) => phase,
             None => {
-                Rotation::add_phases(&mut self.phases);
+                Rotation::add_phases(&self.name, &mut self.phases);
                 self.phases.pop_front().unwrap()
             }
         }
     }
-
-    //fn time_in_phase(&self) -> u8 {
-    //    self.time
-    //}
-
-    ////number of ticks to advance time forward
-    //fn advance(&mut self, ticks: u8) -> (PhaseState, Form) {
-
-    //    if let PhaseState::End = self.state {
-    //        //this is bad - should never be here
-    //        panic!();
-    //    }
-
-    //    let rem = match self.state {
-    //        PhaseState::Start =>
-
-    //    match self.state {
-    //        PhaseState::Start => {
-    //            let rem =
-    //        },
-    //        PhaseState::Ongoing(t) => (),
-    //        PhaseState::End => (),
-    //        _ => (),
-    //    }
-    //    (PhaseState::Start, Form::Serpentine)
-    //}
 
     fn south_green(phases: &mut VecDeque<Phase>) {
         phases.push_back(Phase {
             form: Form::Magma,
             loc: Location::Middle,
             time: 14,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -131,7 +122,6 @@ impl Rotation {
             form: Form::Tanzanite,
             loc: Location::Middle,
             time: 11,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -139,7 +129,6 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::South,
             time: 33,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -147,7 +136,6 @@ impl Rotation {
             form: Form::Magma,
             loc: Location::Middle,
             time: 16,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -155,7 +143,6 @@ impl Rotation {
             form: Form::Tanzanite,
             loc: Location::West,
             time: 14,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -163,7 +150,6 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::South,
             time: 22,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -171,7 +157,6 @@ impl Rotation {
             form: Form::Tanzanite,
             loc: Location::South,
             time: 30,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -180,7 +165,6 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::West,
             time: 42,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -188,7 +172,6 @@ impl Rotation {
             form: Form::Magma,
             loc: Location::Middle,
             time: 15,
-            delay: 6,
             damage: Vec::new(),
         });
 
@@ -196,21 +179,248 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 28,
-            delay: 6,
             damage: Vec::new(),
         });
     }
 
-    fn west_green() -> Rotation {
-        todo!()
+    fn west_green(phases: &mut VecDeque<Phase>) {
+        phases.push_back(Phase {
+            form: Form::Magma,
+            loc: Location::Middle,
+            time: 14,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::Middle,
+            time: 11,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::West,
+            time: 22,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::South,
+            time: 33,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Magma,
+            loc: Location::Middle,
+            time: 15,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::East,
+            time: 14,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::South,
+            time: 30,
+            damage: Vec::new(),
+        });
+
+        //jad
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::West,
+            time: 42,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Magma,
+            loc: Location::Middle,
+            time: 15,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::Middle,
+            time: 28,
+            damage: Vec::new(),
+        });
     }
 
-    fn east_green() -> Rotation {
-        todo!()
+    fn east_green(phases: &mut VecDeque<Phase>) {
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::East,
+            time: 24,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Magma,
+            loc: Location::Middle,
+            time: 34,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::West,
+            time: 14,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::South,
+            time: 14,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::East,
+            time: 14,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::Middle,
+            time: 19,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::West,
+            time: 14,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::Middle,
+            time: 28,
+            damage: Vec::new(),
+        });
+
+        //jad
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::East,
+            time: 29,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::Middle,
+            time: 12,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::Middle,
+            time: 28,
+            damage: Vec::new(),
+        });
     }
 
-    fn east_blue() -> Rotation {
-        todo!()
+    fn east_blue(phases: &mut VecDeque<Phase>) {
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::East,
+            time: 30,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::South,
+            time: 18,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::West,
+            time: 24,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Magma,
+            loc: Location::Middle,
+            time: 22,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::East,
+            time: 11,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::South,
+            time: 28,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::West,
+            time: 27,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::Middle,
+            time: 14,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::Middle,
+            time: 21,
+            damage: Vec::new(),
+        });
+
+        //jad
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::East,
+            time: 23,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Tanzanite,
+            loc: Location::Middle,
+            time: 12,
+            damage: Vec::new(),
+        });
+
+        phases.push_back(Phase {
+            form: Form::Serpentine,
+            loc: Location::Middle,
+            time: 28,
+            damage: Vec::new(),
+        });
     }
 }
 
@@ -250,7 +460,11 @@ impl fmt::Display for Zulrah {
 
 impl Zulrah {
     pub fn new() -> Zulrah {
-        let mut rot = Rotation::new();
+        Zulrah::new_rot(Rot::Southgreen)
+    }
+
+    pub fn new_rot(rot: Rot) -> Zulrah {
+        let mut rot = Rotation::new(rot);
         let phase = rot.next_phase();
         Zulrah {
             rot,
@@ -274,22 +488,22 @@ impl Zulrah {
             self.time += self.phase.time;
             self.phase.time = 0;
         } else {
-            self.time += ticks as u16;
+            self.time += ticks;
             self.phase.time -= ticks;
         }
 
-        if damage as u16 >= self.hitpoints {
+        if damage >= self.hitpoints {
             self.phase.damage.push(self.hitpoints);
             self.kill.push(self.phase.clone());
             self.hitpoints = 0;
             return Return::Dead;
         }
 
-        self.hitpoints -= damage as u16;
+        self.hitpoints -= damage;
         self.phase.damage.push(damage);
 
         if self.phase.time == 0 {
-            self.time += self.phase.delay as u16;
+            self.time += self.rot.delay;
             self.kill.push(self.phase.clone());
             self.phase = self.rot.next_phase();
             Return::Phase
@@ -309,7 +523,4 @@ impl Zulrah {
     pub fn form(&self) -> Form {
         self.phase.form
     }
-
-    //fn form(self) -> Form {
-    //    self.rotation.
 }

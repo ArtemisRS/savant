@@ -1,5 +1,5 @@
 use randomize::{formulas::f32_half_open_left, RandRangeU32, PCG32};
-use zulrah::{Return, Zulrah};
+use zulrah::{Return, Rot, Zulrah};
 
 mod zulrah;
 
@@ -42,35 +42,10 @@ struct Player {
     rng_gen: PCG32,
 }
 
+fn test_kill_zulrah(p: &mut Player, rot: Rot) -> (u32, Zulrah) {
+    let mut z = Zulrah::new_rot(rot);
 
-fn do_it(p: &mut Player, z: &mut Zulrah) -> u16 {
-
-    0u16
-}
-
-
-fn main() {
-    let mut z = Zulrah::new();
-    let mage_green = DPS::new(4, 41, 90.84 / 100.0, zulrah::Form::Serpentine);
-    let mage_red = DPS::new(4, 41, 69.14 / 100.0, zulrah::Form::Magma);
-    let range_blue = DPS::new(2, 32, 63.57 / 100.0, zulrah::Form::Tanzanite);
-
-    let mut buf = [0u8; 8];
-    getrandom::getrandom(&mut buf).unwrap();
-    let seed = u64::from_ne_bytes(buf);
-    let mut rng_gen = randomize::PCG32::seed(seed, seed);
-
-    let mut p = Player {
-        green: mage_green,
-        red: mage_red,
-        blue: range_blue,
-        rng_gen,
-    };
-
-    let mut curr_setup: &DPS;
-
-    let form = z.form();
-    curr_setup = match form {
+    let mut curr_setup = match z.form() {
         zulrah::Form::Serpentine => &p.green,
         zulrah::Form::Magma => &p.red,
         zulrah::Form::Tanzanite => &p.blue,
@@ -96,7 +71,50 @@ fn main() {
     }
 
     if z.is_dead() {
-        print!("{}", &z);
-        println!("It took {} ticks to kill Zulrah", z.ttk());
+        //print!("{}", &z);
+        //println!("It took {} ticks to kill Zulrah", z.ttk());
     }
+    (z.ttk() as u32, z)
+}
+
+fn wrapper(p: &mut Player, rot: Rot) {
+    let mut sum: u32 = 0;
+    let mut fastest: u32 = 1000;
+    let mut _fz: Zulrah = Zulrah::new_rot(rot);
+    for _ in 0..100000 {
+        let (time, z) = test_kill_zulrah(p, rot);
+        sum += time;
+        if time < fastest {
+            fastest = time;
+            _fz = z;
+        }
+    }
+    println!("  It took {} ticks to kill {}", sum / 100000, &rot);
+    println!("    Fastest Zulrah: {}", fastest);
+    //println!("{}", &_fz);
+}
+
+fn main() {
+    let mage_green = DPS::new(4, 41, 90.84 / 100.0, zulrah::Form::Serpentine);
+    let mage_red = DPS::new(4, 41, 69.14 / 100.0, zulrah::Form::Magma);
+    let range_blue = DPS::new(2, 32, 63.57 / 100.0, zulrah::Form::Tanzanite);
+
+    let mut buf = [0u8; 8];
+    getrandom::getrandom(&mut buf).unwrap();
+    let seed = u64::from_ne_bytes(buf);
+    let rng_gen = randomize::PCG32::seed(seed, seed);
+
+    let mut p = Player {
+        green: mage_green,
+        red: mage_red,
+        blue: range_blue,
+        rng_gen,
+    };
+
+    println!("Zulrah Average TTK (100k)");
+
+    wrapper(&mut p, Rot::Southgreen);
+    wrapper(&mut p, Rot::Westgreen);
+    wrapper(&mut p, Rot::Eastgreen);
+    wrapper(&mut p, Rot::Eastblue);
 }
