@@ -28,7 +28,11 @@ impl DPS {
 
     pub fn hit(&self, rng_gen: &mut PCG32) -> u16 {
         if f32_half_open_left(rng_gen.next_u32()) < self.acc {
-            self.rng.sample(rng_gen) as u16
+            let mut hit = self.rng.sample(rng_gen) as u16;
+            if hit > 50 {
+                hit = RandRangeU32::new(45,50).sample(rng_gen) as u16;
+            }
+            hit
         } else {
             0u16
         }
