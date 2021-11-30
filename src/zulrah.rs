@@ -475,12 +475,6 @@ impl Zulrah {
         }
     }
 
-    pub fn test_phases(&mut self) {
-        for _ in 0..50 {
-            println!("{}", self.rot.next_phase());
-        }
-    }
-
     pub fn damage(&mut self, damage: u16, ticks: u16) -> Return {
         assert!(self.hitpoints > 0);
 
@@ -524,3 +518,11 @@ impl Zulrah {
         self.phase.form
     }
 }
+
+/*
+    pub fn test_phases(&mut self) {
+        for _ in 0..50 {
+            println!("{}", self.rot.next_phase());
+        }
+    }
+*/
