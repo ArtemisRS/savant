@@ -81,11 +81,12 @@ fn test_kill_zulrah(p: &mut Player, rot: Rot) -> (u32, Zulrah) {
     (z.ttk() as u32, z)
 }
 
-fn wrapper(p: &mut Player, rot: Rot) {
+fn wrapper(p: &mut Player, rot: Rot) -> f64 {
+    let trials = 100_000;
     let mut sum: u32 = 0;
     let mut fastest: u32 = 1000;
     let mut _fz: Zulrah = Zulrah::new_rot(rot);
-    for _ in 0..100000 {
+    for _ in 0..trials {
         let (time, z) = test_kill_zulrah(p, rot);
         sum += time;
         if time < fastest {
@@ -93,9 +94,23 @@ fn wrapper(p: &mut Player, rot: Rot) {
             _fz = z;
         }
     }
-    println!("  It took {} ticks to kill {}", sum / 100000, &rot);
-    println!("    Fastest Zulrah: {}", fastest);
+    let avg = sum as f64 / trials as f64;
+    //println!("  It took {} ticks to kill {}", avg, &rot);
+    //println!("    Fastest Zulrah: {}", fastest);
     //println!("{}", &_fz);
+    avg
+}
+
+fn beats_time(p: &mut Player, rot: Rot, trials: usize, time_to_beat: u32) {
+    let mut count = 0;
+    let mut _fz: Zulrah = Zulrah::new_rot(rot);
+    for _ in 0..trials {
+        let (time, _z) = test_kill_zulrah(p, rot);
+        if time <= time_to_beat {
+            count+=1;
+        }
+    }
+    println!("Out of {} trials on rotation {}, {} hit the GM time of {}", trials, rot, count, time_to_beat);
 }
 
 fn main() {
@@ -115,10 +130,19 @@ fn main() {
         rng_gen,
     };
 
-    println!("Zulrah Average TTK (100k)");
+    println!("Zulrah Average TTK (1000k)");
 
-    wrapper(&mut p, Rot::Southgreen);
-    wrapper(&mut p, Rot::Westgreen);
-    wrapper(&mut p, Rot::Eastgreen);
-    wrapper(&mut p, Rot::Eastblue);
+    let mut avgs = [0f64;4];
+    avgs[0] = wrapper(&mut p, Rot::Southgreen);
+    avgs[1] = wrapper(&mut p, Rot::Westgreen);
+    avgs[2] = wrapper(&mut p, Rot::Eastgreen);
+    avgs[3] = wrapper(&mut p, Rot::Eastblue);
+
+    println!("  It took {:.0} ticks on average to kill Zulrah.",
+        avgs.iter().sum::<f64>() / avgs.len() as f64);
+
+    //beats_time(&mut p, Rot::Southgreen, 1_000_000, 90);
+    //beats_time(&mut p, Rot::Westgreen, 1_000_000, 90);
+    //beats_time(&mut p, Rot::Eastgreen, 1_000_000, 90);
+    //beats_time(&mut p, Rot::Eastblue, 1_000_000, 90);
 }
