@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use std::fmt;
+use smallvec::SmallVec;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Form {
@@ -23,7 +24,7 @@ struct Phase {
     form: Form,
     loc: Location,
     time: u16, //ticks
-    damage: Vec<u16>,
+    damage: SmallVec::<[u16; 16]>,
 }
 
 impl fmt::Display for Phase {
@@ -78,7 +79,7 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 20,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         Rotation::add_phases(&rot, &mut phases);
@@ -115,49 +116,49 @@ impl Rotation {
             form: Form::Magma,
             loc: Location::Middle,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::Middle,
             time: 11,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::South,
             time: 33,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Magma,
             loc: Location::Middle,
             time: 16,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::West,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::South,
             time: 22,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::South,
             time: 30,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         //jad
@@ -165,21 +166,21 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::West,
             time: 42,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Magma,
             loc: Location::Middle,
             time: 15,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 28,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
     }
 
@@ -188,49 +189,49 @@ impl Rotation {
             form: Form::Magma,
             loc: Location::Middle,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::Middle,
             time: 11,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::West,
             time: 22,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::South,
             time: 33,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Magma,
             loc: Location::Middle,
             time: 15,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::East,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::South,
             time: 30,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         //jad
@@ -238,21 +239,21 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::West,
             time: 42,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Magma,
             loc: Location::Middle,
             time: 15,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 28,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
     }
 
@@ -261,56 +262,56 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::East,
             time: 24,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Magma,
             loc: Location::Middle,
             time: 34,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::West,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::South,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::East,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 19,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::West,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::Middle,
             time: 28,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         //jad
@@ -318,21 +319,21 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::East,
             time: 29,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::Middle,
             time: 12,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 28,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
     }
 
@@ -341,63 +342,63 @@ impl Rotation {
             form: Form::Tanzanite,
             loc: Location::East,
             time: 30,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::South,
             time: 18,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::West,
             time: 24,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Magma,
             loc: Location::Middle,
             time: 22,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::East,
             time: 11,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::South,
             time: 28,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::West,
             time: 27,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 14,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::Middle,
             time: 21,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         //jad
@@ -405,21 +406,21 @@ impl Rotation {
             form: Form::Serpentine,
             loc: Location::East,
             time: 23,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Tanzanite,
             loc: Location::Middle,
             time: 12,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
 
         phases.push_back(Phase {
             form: Form::Serpentine,
             loc: Location::Middle,
             time: 28,
-            damage: Vec::new(),
+            damage: SmallVec::new(),
         });
     }
 }
