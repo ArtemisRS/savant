@@ -1,0 +1,34 @@
+name = 'sim-max'
+# toxic trident, anc top, ah bottoms, mage book, arma helm, 
+[serpentine]
+accuracy = 90.62
+max_hit = 40
+delay = 4
+
+# toxic trident, anc top, ah bottoms, mage book, arma helm, 
+[crimson]
+accuracy = 68.82
+max_hit = 40
+delay = 4
+
+# tbow, ame, arma, no ring, bgloves
+[tanzanite]
+accuracy = 79.61
+max_hit = 70
+delay = 5
+
+# name = 'fbow'
+# [serpentine]
+# accuracy = 67.86
+# max_hit = 46
+# delay = 4
+# 
+# [crimson]
+# accuracy = 24.37
+# max_hit = 46
+# delay = 4
+# 
+# [tanzanite]
+# accuracy = 81.96
+# max_hit = 46
+# delay = 4

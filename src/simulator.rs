@@ -1,5 +1,6 @@
 use crate::zulrah::{Return, Rot, Zulrah};
 use crate::zulrah;
+use crate::Setup;
 use randomize::{formulas::f32_half_open_left, RandRangeU32, PCG32};
 
 struct DPS {
@@ -17,6 +18,10 @@ impl DPS {
             acc,
             rng: RandRangeU32::new(0, max_hit as u32),
         }
+    }
+
+    pub fn from_setup(setup: &Setup) -> DPS {
+        DPS::new(setup.delay, setup.max_hit, setup.accuracy / 100.0)
     }
 
     pub fn average_hit(&self) -> u16 {
@@ -110,87 +115,11 @@ fn beats_time(p: &mut Player, rot: Rot, trials: usize, time_to_beat: u32) {
     println!("Out of {} trials on rotation {}, {} hit the GM time of {}", trials, rot, count, time_to_beat);
 }
 
-pub fn main() {
-    let cbow = DPS::new(4, 38, 79.86 / 100.0);
+pub fn main(serp: &Setup, crim: &Setup, tanz: &Setup) {
 
-    //elite void, no ring
-    let bp_addy = DPS::new(2, 31, 62.71 / 100.0);
-    let bp_rune = DPS::new(2, 32, 63.57 / 100.0);
-    let bp_drag = DPS::new(2, 33, 64.19 / 100.0);
-
-    //full arma, no ring
-    let nerf_bp_addy = DPS::new(2, 24, 67.00 / 100.0);
-    let nerf_bp_rune = DPS::new(2, 26, 67.61 / 100.0);
-    let nerf_bp_drag = DPS::new(2, 28, 68.2 / 100.0);
-    let nerf_bp_drag_void = DPS::new(2, 32, 55.98 / 100.0);
-
-    //elite void, no ring
-    let acb_drag = DPS::new(5, 49, 70.79 / 100.0);
-    let acb_rune = DPS::new(5, 47, 70.79 / 100.0);
-    let kbow_void = DPS::new(3, 32, 65.36 / 100.0);
-    let msb_ame = DPS::new(3, 32, 63.57 / 100.0);
-    let msb_rune = DPS::new(3, 31, 63.57 / 100.0);
-
-    //full arma, no ring
-    let tbow_drag = DPS::new(5, 73, 79.61 / 100.0);
-    let tbow_ame = DPS::new(5, 70, 79.61 / 100.0);
-    let tbow_rune = DPS::new(5, 68, 79.61 / 100.0);
-    let kbow_arma = DPS::new(3, 29, 73.01 / 100.0);
-    let msb_ame_arma = DPS::new(3, 29, 72.03/ 100.0);
-    let msb_rune_arma = DPS::new(3, 27, 72.03 / 100.0);
-
-    //has a 25% of doing a second a hit of up to half the max hit
-    //added temp code to test that has now been removed
-    let kbow_damned = DPS::new(3, 27, 71.46 / 100.0);
-
-    //toxic trident/mage's book/no ring/full ancestral
-    let max_mage_green = DPS::new(4, 41, 90.84 / 100.0);
-    let max_mage_red = DPS::new(4, 41, 69.14 / 100.0);
-
-    //toxic trident/arma helm/ancestral top/ah bot/seers/mage's book
-    let sim_green_alt = DPS::new(4, 40, 90.62 / 100.0);
-    let sim_red_alt = DPS::new(4, 40, 68.42 / 100.0);
-
-    //toxic trident/no helm/ancestral top/ah bot/seers/mage's book
-    let sim_green = DPS::new(4, 40, 90.84 / 100.0);
-    let sim_red = DPS::new(4, 40, 69.14 / 100.0);
-
-    //toxic trident/slay helm/ancestral top/ah bot/seers/mage's book
-    let sim_green_slay = DPS::new(4, 40, 90.96 / 100.0);
-    let sim_red_slay = DPS::new(4, 40, 69.56 / 100.0);
-
-    //toxic trident/farseer helm/ancestral top/ah bot/seers/mage's book
-    let sim_green_helm = DPS::new(4, 40, 91.08 / 100.0);
-    let sim_red_helm = DPS::new(4, 40, 69.97 / 100.0);
-
-
-    //current numbers
-    //bp/addy darts/arma/no helm/archers ring
-    let sim_arma_alt = DPS::new(2, 27, 71.34 / 100.0);
-    let sim_arma_alt = DPS::new(2, 28, 71.81 / 100.0);
-
-    //bp/addy darts/arma/slay helm/archers ring
-    let sim_arma_slay = DPS::new(2, 27, 71.69 / 100.0);
-    let sim_arma_slay = DPS::new(2, 28, 72.14 / 100.0);
-
-    //bp/addy darts/arma/arma helm/archers ring
-    let sim_arma = DPS::new(2, 27, 72.47 / 100.0);
-    let sim_arma = DPS::new(2, 28, 72.90 / 100.0);
-
-    //bp/addy darts/void/archers ring
-    let sim_void = DPS::new(2, 31, 64.39 / 100.0);
-    let sim_void = DPS::new(2, 32, 65.17 / 100.0);
-
-
-    //max with crystal armour, ros
-    let green_fbow = DPS::new(4, 46, 67.87 / 100.0);
-    let red_fbow = DPS::new(4, 46, 24.37 / 100.0);
-    let blue_fbow = DPS::new(4, 46, 81.96 / 100.0);
-
-
-    let mage_green = green_fbow;
-    let mage_red = red_fbow;
-    let range_blue = blue_fbow;
+    let green = DPS::from_setup(serp);
+    let red = DPS::from_setup(crim);
+    let blue = DPS::from_setup(tanz);
 
     let mut buf = [0u8; 8];
     getrandom::getrandom(&mut buf).unwrap();
@@ -198,9 +127,9 @@ pub fn main() {
     let rng_gen = randomize::PCG32::seed(seed, seed);
 
     let mut p = Player {
-        green: mage_green,
-        red: mage_red,
-        blue: range_blue,
+        green: green,
+        red: red,
+        blue: blue,
         rng_gen,
     };
 
