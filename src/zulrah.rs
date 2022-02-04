@@ -38,7 +38,7 @@ impl fmt::Display for Phase {
                 self.damage,
             )?;
         }
-        return res;
+        res
     }
 }
 
@@ -444,15 +444,13 @@ pub struct Zulrah {
 impl fmt::Display for Zulrah {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if !self.is_dead() {
-            write!(
-                f,
-                "{}\n    Phase: {}\n    HP: {}, Ticks: {}\n",
-                self.rot.name, self.phase, self.hitpoints, self.time
-            )
+            writeln!(f, "{}", self.rot.name)?;
+            writeln!(f, "    Phase: {}", self.phase)?;
+            writeln!(f, "    HP: {}, Ticks: {}", self.hitpoints, self.time)
         } else {
-            let res = write!(f, "{}\n", self.rot.name);
+            let res = writeln!(f, "{}", self.rot.name);
             for phase in &self.kill {
-                write!(f, "{}\n", phase)?;
+                writeln!(f, "{}", phase)?;
             }
             res
         }
@@ -519,11 +517,3 @@ impl Zulrah {
         self.phase.form
     }
 }
-
-/*
-    pub fn test_phases(&mut self) {
-        for _ in 0..50 {
-            println!("{}", self.rot.next_phase());
-        }
-    }
-*/
