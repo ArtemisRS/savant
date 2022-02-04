@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 use std::fmt;
 use smallvec::SmallVec;
+use serde::Deserialize;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Form {
@@ -42,7 +43,7 @@ impl fmt::Display for Phase {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
 pub enum Rot {
     Southgreen,
     Westgreen,
