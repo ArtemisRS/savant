@@ -1,11 +1,11 @@
 name = 'sim-max'
-# toxic trident, anc top, ah bottoms, mage book, arma helm, 
+# toxic trident, anc top, ah bottoms, mage book, arma helm
 [serpentine]
 accuracy = 90.62
 max_hit = 40
 delay = 4
 
-# toxic trident, anc top, ah bottoms, mage book, arma helm, 
+# toxic trident, anc top, ah bottoms, mage book, arma helm
 [crimson]
 accuracy = 68.82
 max_hit = 40

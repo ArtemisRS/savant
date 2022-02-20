@@ -12,6 +12,12 @@ getrandom = "0.2.0"
 smallvec = "1.7.0"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.5.8"
+anyhow = "1.0.53"
 
 [profile.release]
-debug = true
+debug = false
+incremental = true
+codegen-units = 256
+
+[profile.dev.package.randomize]
+opt-level = 3
