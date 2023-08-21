@@ -151,3 +151,114 @@ pub fn main(serp: &Setup, crim: &Setup, tanz: &Setup) {
     //beats_time(&mut p, Rot::Eastgreen, trials, gm_time);
     //beats_time(&mut p, Rot::Eastblue, trials, gm_time);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fn kill_zulrah2(p: &mut Player, rot: Rot) -> (u64, Zulrah) {
+    let mut z = Zulrah::new_rot(rot);
+
+    let mut curr_setup = match z.form() {
+        zulrah::Form::Serpentine => &p.green,
+        zulrah::Form::Magma => &p.red,
+        zulrah::Form::Tanzanite => &p.blue,
+    };
+
+    //println!("{}", &z);
+    loop {
+        let rand_damage = curr_setup.hit(&mut p.rng_gen);
+        //println!("rand: {}", rand_damage);
+        match z.damage(rand_damage, curr_setup.ticks) {
+            Return::Alive => continue,
+            Return::Dead => break,
+            Return::Phase => (),
+        }
+
+        let form = z.form();
+        curr_setup = match form {
+            zulrah::Form::Serpentine => &p.green,
+            zulrah::Form::Magma => &p.red,
+            zulrah::Form::Tanzanite => &p.blue,
+        };
+        //println!("{}", &z);
+    }
+
+    if z.is_dead() {
+        //print!("{}", &z);
+        //println!("It took {} ticks to kill Zulrah", z.ttk());
+    }
+    (z.ttk() as u64, z)
+}
+
+fn kill_n_zulrah2(p: &mut Player, trials: usize, rot: Rot) -> f64 {
+    let mut sum: u64 = 0;
+    let mut fastest = 10000;
+    let mut _fz: Zulrah = Zulrah::new_rot(rot);
+    for _ in 0..trials {
+        let (time, z) = kill_zulrah2(p, rot);
+        sum += time;
+        if time < fastest {
+            fastest = time;
+            _fz = z;
+        }
+    }
+    let avg = sum as f64 / trials as f64;
+    println!("  It took {} ticks to kill {}", avg, &rot);
+    //println!("    Fastest Zulrah: {}", fastest);
+    //println!("{}", &_fz);
+    avg
+}
+
+
+
+
+
+
+pub fn zulrah2(serp: &Setup, crim: &Setup, tanz: &Setup) {
+
+    let green = DPS::from_setup(serp);
+    let red = DPS::from_setup(crim);
+    let blue = DPS::from_setup(tanz);
+
+    let mut buf = [0u8; 8];
+    getrandom::getrandom(&mut buf).unwrap();
+    let seed = u64::from_ne_bytes(buf);
+    let rng_gen = randomize::PCG32::seed(seed, seed);
+
+    let mut p = Player {
+        green: green,
+        red: red,
+        blue: blue,
+        rng_gen,
+    };
+
+    let trials = 1_000_000;
+    println!("Zulrah2 Average TTK ({}k trials)", trials/1000);
+
+    let mut avgs = [0f64;4];
+    avgs[0] = kill_n_zulrah2(&mut p, trials, Rot::Southgreen);
+    //avgs[1] = kill_n_zulrah2(&mut p, trials, Rot::Westgreen);
+    //avgs[2] = kill_n_zulrah2(&mut p, trials, Rot::Eastgreen);
+    //avgs[3] = kill_n_zulrah2(&mut p, trials, Rot::Eastblue);
+
+    println!("  It took {:.0} ticks on average to kill Zulrah.",
+        avgs.iter().sum::<f64>() / avgs.len() as f64);
+
+}

@@ -17,6 +17,12 @@ accuracy = 79.61
 max_hit = 70
 delay = 5
 
+# bp, ame, arma, no ring, bgloves
+[quick_stall]
+accuracy = 70.0
+max_hit = 28
+delay = 2
+
 # name = 'fbow'
 # [serpentine]
 # accuracy = 67.86

@@ -16,13 +16,14 @@ struct Config {
     name: String,
     //future options
     //rotation: Option<zulrah::Rot>, //specify a specific rotation
-    //beat_time: Option<u8>, //in ticks, for $ of kills faster than time
+    //beat_time: Option<u8>, //in ticks, for # of kills faster than time
     //stall: Option<bool>,
     //attacks: Option<Vec<setup-ids>>, //list out every attack
 
     serpentine: Setup,
     crimson: Setup,
     tanzanite: Setup,
+    quick_stall: Setup,
 }
 
 #[derive(Debug, Deserialize)]
@@ -39,6 +40,6 @@ fn main() -> Result<()> {
     let config: Config = toml::from_str(&input)?;
 
     dbg!(&config);
-    simulator::main(&config.serpentine, &config.crimson, &config.tanzanite);
+    simulator::zulrah2(&config.serpentine, &config.crimson, &config.tanzanite);
     Ok(())
 }
