@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "savant-zulrah",
+    "savant-parser",
 ]
 
 [profile.release]
