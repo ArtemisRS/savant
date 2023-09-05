@@ -1,5 +1,6 @@
 use std::{error::Error, io, process};
 use serde::Deserialize;
+use std::cmp::Ordering;
 
 ///Design ideas
 ///1. Read in the CSV and turn it into the basic item below that still has all
@@ -56,7 +57,7 @@ struct CsvItem {
     #[serde(rename = "Attack speed")]
     attack_speed: Option<i16>, //set to f32 for heka
     #[serde(rename = "Combat options")]
-    combat_options: Option<String>,
+    combat_options: Option<i16>,
     #[serde(rename = "Mining level req")]
     mining_level_req: Option<i16>,
 }
@@ -69,8 +70,19 @@ enum CombatStyle {
     Magic,
 }
 
+
 #[derive(Debug, Default)]
-struct Item {
+struct WeaponOptions {
+    attack_speed: i16,
+    combat_options: i16,
+    special_accuracy: f32,
+    special_damage_1: f32,
+    special_damage_2: f32,
+    special_defence_roll: String,
+}
+
+#[derive(Debug, Default)]
+pub struct Item {
     name: String,
     stab_attack: i16,
     slash_attack: i16,
@@ -89,14 +101,43 @@ struct Item {
     weapon: Option<WeaponOptions>,
 }
 
-#[derive(Debug, Default)]
-struct WeaponOptions {
-    attack_speed: i16,
-    combat_options: i16,
-    special_accuracy: f32,
-    special_damage_1: f32,
-    special_damage_2: f32,
-    special_defence_roll: String,
+
+impl PartialEq for Item {
+    fn eq(&self, other: &utmpx) -> bool {
+        self.ut_type == other.ut_type
+            && self.ut_pid == other.ut_pid
+            && self.ut_name == other.ut_name
+            && self.ut_line == other.ut_line
+            && self.ut_id == other.ut_id
+            && self.ut_exit == other.ut_exit
+            && self.ut_session == other.ut_session
+            && self.ut_tv == other.ut_tv
+            && self.ut_ss == other.ut_ss
+            && self
+            .ut_pad
+            .iter()
+            .zip(other.ut_pad.iter())
+            .all(|(a,b)| a == b)
+            && self
+            .ut_host
+            .iter()
+            .zip(other.ut_host.iter())
+            .all(|(a,b)| a == b)
+    }
+}
+
+
+//impl Ord for Item{
+//    fn cmp(&self, other: &Item) -> Ordering {
+//        (self.raw.time, self.raw.offset).cmp(&(other.raw.time, other.raw.offset))
+//    }
+//}
+
+impl Item {
+    fn empty() -> Item {
+        Item::default()
+    }
+
 }
 
 impl From<CsvItem> for Item {
@@ -115,14 +156,24 @@ impl From<CsvItem> for Item {
             ranged_defence: item.magic_defence.unwrap_or_default(),
             melee_strength: item.melee_strength.unwrap_or_default(),
             ranged_strength: item.ranged_strength.unwrap_or_default(),
-            magic_damage: item.magic_damage.unwrap_or(1.0),
+            magic_damage: item.magic_damage.unwrap_or(0.0),
             prayer: item.prayer.unwrap_or_default(),
-            attack_speed: item.attack_speed.unwrap_or(4),
+            weapon: match item.attack_speed {
+                Some(attack_speed) => Some(WeaponOptions {
+                    attack_speed,
+                    combat_options: item.combat_options.unwrap_or_default(),
+                    special_accuracy: item.special_accuracy.unwrap_or_default(),
+                    special_damage_1: item.special_damage_1.unwrap_or_default(),
+                    special_damage_2: item.special_damage_2.unwrap_or_default(),
+                    special_defence_roll: item.special_defence_roll.unwrap_or_default(),
+                }),
+                None => None,
+            }
         }
     }
 }
 
-fn example() -> Result<Vec<CsvItem>, Box<dyn Error>> {
+fn read_in_csv() -> Result<Vec<CsvItem>, Box<dyn Error>> {
     let mut items = Vec::new();
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.deserialize() {
@@ -135,18 +186,104 @@ fn example() -> Result<Vec<CsvItem>, Box<dyn Error>> {
     Ok(items)
 }
 
-fn main() {
-    println!("Hello, world!");
-    match example() {
+pub fn generate_items() -> Vec<Item> {
+    //let's switch this to take a reader as input
+    //
+
+    let mut items = Vec::new();
+    match read_in_csv() {
         Err(err) => {
             println!("error running example: {}", err);
             process::exit(1);
         }
         Ok(vec) => {
             for csvitem in vec {
+                if let Some(i16) = csvitem.spell_max_hit {
+                    break;
+                }
                 let item: Item = csvitem.into();
-                println!("{:#?}", item)
+                println!("{:#?}", item);
+                items.push(item);
             }
         }
     }
+
+    items
+
+}
+
+pub struct SortedItems {
+    head: Vec<Item>,
+    cape: Vec<Item>,
+    neck: Vec<Item>,
+    ammo: Vec<Item>,
+    weapon: Vec<Item>,
+    body: Vec<Item>,
+    shield: Vec<Item>,
+    legs: Vec<Item>,
+    hands: Vec<Item>,
+    feet: Vec<Item>,
+    ring: Vec<Item>,
+}
+
+impl SortedItems {
+    fn new(full: Vec<Item>) -> SortedItems {
+        let mut none_counter = 0;
+        let empty_item = Item::empty();
+        let mut full = full;
+
+        let mut head: Vec<Item> = Vec::new();
+        {
+        let first = full.pop().unwrap();
+        if first.name != " " {
+            panic!("format changed - first item is not blank with name ' '");
+        }
+        let second = full.pop().unwrap();
+        if second != empty_item {
+            panic!("format changed - second item is not empty");
+        }
+
+
+        loop {
+
+        }
+        }
+
+        for item in full {
+
+        }
+
+        todo!()
+    }
+}
+
+pub struct Equipment {
+    head: Item,
+    cape: Item,
+    neck: Item,
+    ammo: Item,
+    weapon: Item,
+    body: Item,
+    shield: Item,
+    legs: Item,
+    hands: Item,
+    feet: Item,
+    ring: Item,
+}
+
+impl Equipment {
+
+    fn add_item (mut self, item_list: &[Item], item_name: String) -> Equipment {
+        todo!()
+    }
+
+    fn remove_item(mut self, item_name: String) -> Equipment {
+        todo!()
+    }
+
+}
+
+
+fn main() {
+    generate_items();
 }
