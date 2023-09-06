@@ -1,6 +1,8 @@
 use std::{error::Error, io, process};
 use serde::Deserialize;
 use std::cmp::Ordering;
+use std::collections::VecDeque;
+use std::{thread, time};
 
 ///Design ideas
 ///1. Read in the CSV and turn it into the basic item below that still has all
@@ -103,26 +105,8 @@ pub struct Item {
 
 
 impl PartialEq for Item {
-    fn eq(&self, other: &utmpx) -> bool {
-        self.ut_type == other.ut_type
-            && self.ut_pid == other.ut_pid
-            && self.ut_name == other.ut_name
-            && self.ut_line == other.ut_line
-            && self.ut_id == other.ut_id
-            && self.ut_exit == other.ut_exit
-            && self.ut_session == other.ut_session
-            && self.ut_tv == other.ut_tv
-            && self.ut_ss == other.ut_ss
-            && self
-            .ut_pad
-            .iter()
-            .zip(other.ut_pad.iter())
-            .all(|(a,b)| a == b)
-            && self
-            .ut_host
-            .iter()
-            .zip(other.ut_host.iter())
-            .all(|(a,b)| a == b)
+    fn eq(&self, other: &Item) -> bool {
+        self.name == other.name
     }
 }
 
@@ -202,7 +186,7 @@ pub fn generate_items() -> Vec<Item> {
                     break;
                 }
                 let item: Item = csvitem.into();
-                println!("{:#?}", item);
+                //println!("{:#?}", item);
                 items.push(item);
             }
         }
@@ -212,6 +196,7 @@ pub fn generate_items() -> Vec<Item> {
 
 }
 
+#[derive(Debug, Default)]
 pub struct SortedItems {
     head: Vec<Item>,
     cape: Vec<Item>,
@@ -228,36 +213,240 @@ pub struct SortedItems {
 
 impl SortedItems {
     fn new(full: Vec<Item>) -> SortedItems {
-        let mut none_counter = 0;
         let empty_item = Item::empty();
-        let mut full = full;
+        let mut full:VecDeque<Item> = VecDeque::from(full);
+
+        let mut weapon: Vec<Item> = Vec::new();
+        {
+            let first = full.pop_front().unwrap();
+            if first.name != " " {
+                panic!("format changed - first item is not blank with name ' '");
+            }
+            let second = full.pop_front().unwrap();
+            if second.name != "None" {
+                panic!("format changed - second item is not the None weapon");
+            }
+            weapon.push(second);
+
+            //collect melee, ranged, magic weapons
+            for _ in 0..3 {
+                while let Some(item) = full.pop_front() {
+                    if item == empty_item {
+                        break;
+                    }
+                    weapon.push(item);
+                }
+            }
+        }
 
         let mut head: Vec<Item> = Vec::new();
         {
-        let first = full.pop().unwrap();
-        if first.name != " " {
-            panic!("format changed - first item is not blank with name ' '");
-        }
-        let second = full.pop().unwrap();
-        if second != empty_item {
-            panic!("format changed - second item is not empty");
-        }
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between weapon and head")
+                    }
+                }
+            }
 
-
-        loop {
-
-        }
-        }
-
-        for item in full {
-
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                head.push(item);
+            }
         }
 
-        todo!()
+        let mut cape: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between head and cape")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                cape.push(item);
+            }
+        }
+
+        let mut neck: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between cape and neck")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                neck.push(item);
+            }
+        }
+
+        let mut body: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between neck and body")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                body.push(item);
+            }
+        }
+
+        let mut legs: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between body and legs")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                legs.push(item);
+            }
+        }
+
+        let mut shield: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between legs and shield")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                shield.push(item);
+            }
+        }
+
+        let mut hands: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between shield and hands")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                hands.push(item);
+            }
+        }
+
+        let mut feet: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between hands and feet")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                feet.push(item);
+            }
+        }
+
+        let mut ring: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between feet and ring")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                ring.push(item);
+            }
+        }
+
+        let mut ammo: Vec<Item> = Vec::new();
+        {
+            //Skip 2nd + 3rd empty lines
+            for _ in 0..2 {
+                if let Some(item) = full.pop_front() {
+                    if item != empty_item {
+                        panic!("error parsing between ring and ammo")
+                    }
+                }
+            }
+
+            while let Some(item) = full.pop_front() {
+                if item == empty_item {
+                    break;
+                }
+                ammo.push(item);
+            }
+        }
+
+        SortedItems {
+            head,
+            cape,
+            neck,
+            ammo,
+            weapon,
+            body,
+            shield,
+            legs,
+            hands,
+            feet,
+            ring,
+        }
     }
 }
 
-pub struct Equipment {
+#[derive(Debug)]
+pub struct Equipment<'a> {
     head: Item,
     cape: Item,
     neck: Item,
@@ -269,15 +458,20 @@ pub struct Equipment {
     hands: Item,
     feet: Item,
     ring: Item,
+    item_list: &'a SortedItems,
 }
 
-impl Equipment {
+impl<'b> Equipment<'b> {
 
-    fn add_item (mut self, item_list: &[Item], item_name: String) -> Equipment {
+    fn new<'a> (item_list: &'b SortedItems) -> Equipment<'a> {
         todo!()
     }
 
-    fn remove_item(mut self, item_name: String) -> Equipment {
+    fn add_item<'a> (mut self, item_name: String) -> Equipment<'a> {
+        todo!()
+    }
+
+    fn remove_item<'a>(mut self, item_name: String) -> Equipment<'a> {
         todo!()
     }
 
@@ -285,5 +479,6 @@ impl Equipment {
 
 
 fn main() {
-    generate_items();
+    let items_list = SortedItems::new(generate_items());
+    //println!("{:#?}", items_list);
 }
